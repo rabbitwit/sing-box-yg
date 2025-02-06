@@ -288,41 +288,20 @@ uninstall_singbox() {
 }
 
 kill_all_tasks() {
-  read -p "\n清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
-  case "$choice" in
-    [Yy])
-      # 确认用户是否真的要继续
-      read -p "你确定要继续吗？这将删除所有相关文件和进程。【y/n】: " confirm
-      if [[ "$confirm" != [Yy] ]]; then
-        echo "操作已取消。"
-        menu
-        return
-      fi
-
-      # 终止用户进程，排除关键进程
-      pkill -u $(whoami) -x -o || true
-
-      # 删除特定文件
-      rm -f domains serv00.sh serv00keep.sh
-
-      # 修改文件权限
-      find ~ -type f -exec chmod 644 {} + 2>/dev/null
-      find ~ -type d -exec chmod 755 {} + 2>/dev/null
-
-      # 删除特定路径下的文件和空目录
-      find ~/specific_path -type f -delete 2>/dev/null
-      find ~/specific_path -type d -empty -delete 2>/dev/null
-
-      # 终止剩余用户进程
-      pkill -u $(whoami) || true
-
-      echo "清理完成。"
+  reading "\n清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
+    case "$choice" in
+      [Yy])
+      bash -c 'ps aux | grep $(whoami) | grep -v "sshd\|bash\|grep" | awk "{print \$2}" | xargs -r kill -9 >/dev/null 2>&1' >/dev/null 2>&1
+      rm -rf domains serv00.sh serv00keep.sh
+      find ~ -type f -exec chmod 644 {} \; 2>/dev/null
+      find ~ -type d -exec chmod 755 {} \; 2>/dev/null
+      find ~ -type f -exec rm -f {} \; 2>/dev/null
+      find ~ -type d -empty -exec rmdir {} \; 2>/dev/null
+      find ~ -exec rm -rf {} \; 2>/dev/null
+      killall -9 -u $(whoami)
       ;;
-    *)
-      echo "操作已取消。"
-      menu
-      ;;
-  esac
+      *) menu ;;
+    esac
 }
 
 # Generating argo Config
