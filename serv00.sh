@@ -60,18 +60,17 @@ read_ip() {
         # 如果没有找到可用的IP，则调用okip函数获取IP
         if [[ -z "$IP" ]]; then
             IP=$(okip)
+        fi
 
-            # 验证okip函数返回的IP是否有效
+        # 验证okip函数返回的IP是否有效
+        if [[ -z "$IP" ]]; then
+            # 如果okip函数也没有获取到IP，则选择ip.txt中的第一个IP
+            IP=$(head -n 1 "$ip_file" | awk -F ':' '{print $1}')
+
+            # 再次验证IP是否有效
             if [[ -z "$IP" ]]; then
-                red "警告: okip函数未能获取到有效的IP地址"
-                # 如果okip函数也没有获取到IP，则选择ip.txt中的第一个IP
-                IP=$(head -n 1 "$ip_file" | awk -F ':' '{print $1}')
-
-                # 再次验证IP是否有效
-                if [[ -z "$IP" ]]; then
-                    red "错误: 文件 $ip_file 中没有有效的IP地址"
-                    return 1
-                fi
+                red "错误: 文件 $ip_file 中没有有效的IP地址"
+                return 1
             fi
         fi
     fi
@@ -79,6 +78,7 @@ read_ip() {
     # 输出选定的IP地址
     green "你选择的IP为: $IP"
 }
+
 
 # 读取或生成UUID
 read_uuid() {
