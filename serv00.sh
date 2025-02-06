@@ -288,7 +288,7 @@ uninstall_singbox() {
 }
 
 kill_all_tasks() {
-  read -p "\n清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
+  read -p "清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
   case "$choice" in
     [Yy])
       set -e  # 确保命令失败时立即退出
