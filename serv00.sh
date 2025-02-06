@@ -1,25 +1,21 @@
 #!/bin/bash
 
 # 定义颜色常量
-RE="\033[0m"
-RED="\033[1;91m"
-GREEN="\e[1;32m"
-YELLOW="\e[1;33m"
-PURPLE="\e[1;35m"
+re="\033[0m"
+red="\033[1;91m"
+green="\e[1;32m"
+yellow="\e[1;33m"
+purple="\e[1;35m"
 
 # 定义颜色输出函数
-color() {
-    case "$1" in
-        red) echo -e "${RED}$2${RE}" ;;
-        green) echo -e "${GREEN}$2${RE}" ;;
-        yellow) echo -e "${YELLOW}$2${RE}" ;;
-        purple) echo -e "${PURPLE}$2${RE}" ;;
-        *) echo -e "$2" ;;
-    esac
-}
+red() { echo -e "\e[1;91m$1\033[0m"; }
+green() { echo -e "\e[1;32m$1\033[0m"; }
+yellow() { echo -e "\e[1;33m$1\033[0m"; }
+purple() { echo -e "\e[1;35m$1\033[0m"; }
+reading() { read -p "$(red "$1")" "$2"; }
 
 # 定义读取输入函数
-reading() { read -p "$(color red "$1")" "$2"; }
+reading() { read -p "$(red "$1")" "$2"; }
 
 # 获取当前用户名并转换为小写
 USERNAME=$(whoami | tr '[:upper:]' '[:lower:]')
