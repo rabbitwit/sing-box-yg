@@ -26,12 +26,6 @@ if ! [[ "$USERNAME" =~ ^[a-z0-9_-]+$ ]]; then
     exit 1
 fi
 
-# 执行 devil 命令并捕获错误信息
-if ! devil www add "${USERNAME}.serv00.net" php &> /tmp/devil_command.log; then
-    echo "Error executing devil command, check /tmp/devil_command.log for details"
-    exit 1
-fi
-
 # 定义路径
 BASE_DIR="${HOME}/domains/${USERNAME}.serv00.net"
 FILE_PATH="${BASE_DIR}/public_html"
