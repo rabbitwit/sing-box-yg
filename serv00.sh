@@ -79,7 +79,6 @@ read_ip() {
     green "你选择的IP为: $IP"
 }
 
-
 # 读取或生成UUID
 read_uuid() {
     # 提示用户输入UUID密码，建议回车默认随机生成
@@ -120,7 +119,11 @@ read_reym() {
 # 检查和调整端口配置
 check_port() {
     # 获取当前端口列表
-    port_list=$(devil port list)
+    if ! port_list=$(devil port list 2>/dev/null); then
+        red "获取端口列表失败，请检查 devil 工具是否正常工作"
+        return 1
+    fi
+
     tcp_ports=$(echo "$port_list" | grep -c "tcp")
     udp_ports=$(echo "$port_list" | grep -c "udp")
 
@@ -132,7 +135,10 @@ check_port() {
         if [[ $tcp_ports -gt 2 ]]; then
             tcp_to_delete=$((tcp_ports - 2))
             echo "$port_list" | awk '/tcp/ {print $1, $2}' | head -n $tcp_to_delete | while read port type; do
-                devil port del $type $port
+                if ! devil port del "$type" "$port" 2>/dev/null; then
+                    yellow "删除TCP端口 $port 失败，继续尝试其他端口..."
+                    continue
+                fi
                 green "已删除TCP端口: $port"
             done
         fi
@@ -141,7 +147,10 @@ check_port() {
         if [[ $udp_ports -gt 1 ]]; then
             udp_to_delete=$((udp_ports - 1))
             echo "$port_list" | awk '/udp/ {print $1, $2}' | head -n $udp_to_delete | while read port type; do
-                devil port del $type $port
+                if ! devil port del "$type" "$port" 2>/dev/null; then
+                    yellow "删除UDP端口 $port 失败，继续尝试其他端口..."
+                    continue
+                fi
                 green "已删除UDP端口: $port"
             done
         fi
@@ -152,7 +161,7 @@ check_port() {
             tcp_ports_added=0
             while [[ $tcp_ports_added -lt $tcp_ports_to_add ]]; do
                 tcp_port=$(shuf -i 10000-65535 -n 1)
-                result=$(devil port add tcp $tcp_port 2>&1)
+                result=$(devil port add tcp "$tcp_port" 2>&1)
                 if [[ $result == *"succesfully"* ]]; then
                     green "已添加TCP端口: $tcp_port"
                     if [[ $tcp_ports_added -eq 0 ]]; then
@@ -171,7 +180,7 @@ check_port() {
         if [[ $udp_ports -lt 1 ]]; then
             while true; do
                 udp_port=$(shuf -i 10000-65535 -n 1)
-                result=$(devil port add udp $udp_port 2>&1)
+                result=$(devil port add udp "$udp_port" 2>&1)
                 if [[ $result == *"succesfully"* ]]; then
                     green "已添加UDP端口: $udp_port"
                     break
@@ -183,8 +192,10 @@ check_port() {
 
         # 提示端口已调整完成并断开SSH连接
         green "端口已调整完成,将断开ssh连接,请重新连接ssh重新执行脚本"
-        devil binexec on >/dev/null 2>&1
-        kill -9 $(ps -o ppid= -p $$) >/dev/null 2>&1
+        if ! devil binexec on >/dev/null 2>&1; then
+            yellow "执行 devil binexec on 失败"
+        fi
+        exit 0
     else
         # 获取当前的TCP和UDP端口
         tcp_ports=$(echo "$port_list" | awk '/tcp/ {print $1}')
