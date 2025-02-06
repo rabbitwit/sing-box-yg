@@ -288,16 +288,38 @@ uninstall_singbox() {
 }
 
 kill_all_tasks() {
-  read -p "清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
+  read -p "\n清理所有进程并清空所有安装内容，将退出ssh连接，确定继续清理吗？【y/n】: " choice
   case "$choice" in
     [Yy])
-      set -e  # 确保命令失败时立即退出
-      pkill -u "$(whoami)" -o || true  # 安全地终止用户进程
-      rm -rf domains serv00.sh serv00keep.sh  # 删除指定文件
-      find ~ -type f \( -name "domains" -o -name "serv00.sh" -o -name "serv00keep.sh" \) -exec rm -f {} + 2>/dev/null
-      find ~ -type d -empty -delete 2>/dev/null  # 删除空目录
+      # 确认用户是否真的要继续
+      read -p "你确定要继续吗？这将删除所有相关文件和进程。【y/n】: " confirm
+      if [[ "$confirm" != [Yy] ]]; then
+        echo "操作已取消。"
+        menu
+        return
+      fi
+
+      # 终止用户进程，排除关键进程
+      pkill -u $(whoami) -x -o || true
+
+      # 删除特定文件
+      rm -f domains serv00.sh serv00keep.sh
+
+      # 修改文件权限
+      find ~ -type f -exec chmod 644 {} + 2>/dev/null
+      find ~ -type d -exec chmod 755 {} + 2>/dev/null
+
+      # 删除特定路径下的文件和空目录
+      find ~/specific_path -type f -delete 2>/dev/null
+      find ~/specific_path -type d -empty -delete 2>/dev/null
+
+      # 终止剩余用户进程
+      pkill -u $(whoami) || true
+
+      echo "清理完成。"
       ;;
     *)
+      echo "操作已取消。"
       menu
       ;;
   esac
