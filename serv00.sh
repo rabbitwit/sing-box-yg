@@ -1152,7 +1152,7 @@ fi
 
 servkeep() {
 #green "开始安装Cron进程保活"
-curl -sSL https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/serv00keep.sh -o serv00keep.sh && chmod +x serv00keep.sh
+curl -sSL https://raw.githubusercontent.com/rabbitwit/sing-box-yg/master/serv00keep.sh -o serv00keep.sh && chmod +x serv00keep.sh
 sed -i '' -e "14s|''|'$UUID'|" serv00keep.sh
 sed -i '' -e "17s|''|'$vless_port'|" serv00keep.sh
 sed -i '' -e "18s|''|'$vmess_port'|" serv00keep.sh
@@ -1176,7 +1176,7 @@ fi
 green "开始安装网页进程保活"
 keep_path="$HOME/domains/${USERNAME}.${USERNAME}.serv00.net/public_nodejs"
 [ -d "$keep_path" ] || mkdir -p "$keep_path"
-curl -sL https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/app.js -o "$keep_path"/app.js
+curl -sL https://raw.githubusercontent.com/rabbitwit/sing-box-yg/master/app.js -o "$keep_path"/app.js
 sed -i '' "28s/name/$USERNAME/g" "$keep_path"/app.js
 sed -i '' "22s/name/$snb/g" "$keep_path"/app.js
 devil www del ${USERNAME}.${USERNAME}.serv00.net > /dev/null 2>&1
@@ -1307,7 +1307,7 @@ green "保活网页：http://${USERNAME}.${USERNAME}.serv00.net/up"
 else
 red "未安装sing-box，请选择 1 进行安装" 
 fi
-curl -sSL https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/serv00.sh -o serv00.sh && chmod +x serv00.sh
+curl -sSL https://raw.githubusercontent.com/rabbitwit/sing-box-yg/master/serv00.sh -o serv00.sh && chmod +x serv00.sh
    echo   "========================================================="
    reading "请输入选择【0-5】: " choice
    echo ""
