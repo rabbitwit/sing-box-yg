@@ -24,7 +24,7 @@ USERNAME=$(whoami | tr '[:upper:]' '[:lower:]')
 HOSTNAME=$(hostname)
 
 # 获取主机名的第一个部分
-snb=$(echo "$HOSTNAME" | awk -F '.' '{print $1}')
+snb=$(hostname | awk -F '.' '{print $1}')
 
 # 添加虚拟主机
 devil www add ${USERNAME}.serv00.net php > /dev/null 2>&1
